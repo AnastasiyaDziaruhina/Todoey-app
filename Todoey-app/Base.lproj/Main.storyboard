@@ -30,7 +30,16 @@
                             <outlet property="delegate" destination="IOZ-L9-VJb" id="hxy-He-XX8"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="ToDoey" id="Fry-ng-EDg"/>
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" title="ToDoey" id="Fry-ng-EDg">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ehx-4S-bsl">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="IOZ-L9-VJb" id="MUP-zB-Z5f"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2kf-Re-F7T" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -46,6 +55,9 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="barTintColor" red="0.40000000000000002" green="0.4039215686" blue="0.6705882353" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <textAttributes key="titleTextAttributes">
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </textAttributes>
+                        <textAttributes key="largeTitleTextAttributes">
                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </textAttributes>
                         <navigationBarAppearance key="standardAppearance">
