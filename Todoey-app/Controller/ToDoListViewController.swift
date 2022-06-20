@@ -50,9 +50,12 @@ class ToDoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done // замена if-else
+//        context.delete(itemArray[indexPath.row]) // removes the data from permanent stores
+//        itemArray.remove(at: indexPath.row) // removes the current item from itemArray
+        
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done // замена if-else + U in CRUD
         saveItems()
-        //tableView.reloadData()
+        
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
@@ -109,7 +112,7 @@ class ToDoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
+    func loadItems() { // R in CRUD
         
         let request: NSFetchRequest<Item> = Item.fetchRequest()
         
