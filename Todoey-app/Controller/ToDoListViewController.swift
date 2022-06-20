@@ -16,7 +16,7 @@ class ToDoListViewController: UITableViewController {
     
     var selectedCategory: Category? {
         didSet{
-            loadItems()
+             loadItems()
         }
     }
     
@@ -57,96 +57,106 @@ class ToDoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-//        context.delete(itemArray[indexPath.row]) // removes the data from permanent stores
-//        itemArray.remove(at: indexPath.row) // removes the current item from itemArray
-        
-//        itemArray[indexPath.row].done = !itemArray[indexPath.row].done // замена if-else + U in CRUD
-//        saveItems()
-        
-        tableView.deselectRow(at: indexPath, animated: true)
+        if let item = toDoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                  //  realm.delete(item) // D in CRUD
+                   item.done = !item.done
+                }
+            } catch {
+                print("Error saving done status \(error)")
+            }
+            
+        }
+            tableView.reloadData()
+            
+            
+            tableView.deselectRow(at: indexPath, animated: true)
+            
         
     }
-    
-    //MARK: - Add new items
-    
-    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
-        var textField = UITextField()
+        //MARK: - Add new items
         
-        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            //read textfiled values + safety check
-            guard let field = alert.textFields, field.count == 1 else {
-                return
-            }
+        @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
             
-            let alertField = field[0]
-            guard let alert = alertField.text, !alert.isEmpty else {
-                print("The string is empty")
-                return
-            }
+            var textField = UITextField()
             
-            if let currentCategory = self.selectedCategory {
-                do {
-                    try self.realm.write {
-                        let newItem = Item()
-                        newItem.title = textField.text!
-                        currentCategory.items.append(newItem)
+            let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+            
+            let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+                //read textfiled values + safety check
+                
+                guard let field = alert.textFields, field.count == 1 else {
+                    return
+                }
+                
+                let alertField = field[0]
+                guard let alert = alertField.text, !alert.isEmpty else {
+                    print("The string is empty")
+                    return
+                }
+                
+                if let currentCategory = self.selectedCategory {
+                    do {
+                        try self.realm.write {
+                            let newItem = Item()
+                            newItem.title = textField.text!
+                            currentCategory.items.append(newItem)
+                        }
+                    } catch {
+                        print(error)
                     }
-                } catch {
-                    print(error)
+                }
+                self.tableView.reloadData()
             }
-        }
-            self.tableView.reloadData()
-}
-        alert.addTextField { (alertTextField) in
-            alertTextField.placeholder = "Create new item"
-            textField = alertTextField
-    
+            alert.addTextField { (alertTextField) in
+                alertTextField.placeholder = "Create new item"
+                textField = alertTextField
+                
+            }
+            
+            alert.addAction(action)
+            present(alert, animated: true, completion: nil)
+            
         }
         
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
+        //MARK: - Model manipulation methods
+        
+        func loadItems() { // R in CRUD
+            
+            toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+            
+            tableView.reloadData()
+        }
         
     }
     
-    //MARK: - Model manipulation methods
+    //MARK: - Search bar methods
     
-    func loadItems() { // R in CRUD
-        
-        toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-        
-        tableView.reloadData()
-    }
+    
+    //extension ToDoListViewController: UISearchBarDelegate {
+    //
+    //    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+    //
+    //        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    //        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+    //        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+    //
+    //        loadItems(with: request)
+    //
+    //        }
+    //    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    //        if searchBar.text?.count == 0 {
+    //            loadItems()
+    //
+    //            DispatchQueue.main.async {
+    //                searchBar.resignFirstResponder()
+    //            }
+    //
+    //        }
+    //    }}
 
-}
-
-//MARK: - Search bar methods
-
-
-//extension ToDoListViewController: UISearchBarDelegate {
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//
-//        let request: NSFetchRequest<Item> = Item.fetchRequest()
-//        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        loadItems(with: request)
-//
-//        }
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchBar.text?.count == 0 {
-//            loadItems()
-//
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//
-//        }
-//    }
-//}
 
 
 
