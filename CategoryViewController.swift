@@ -47,7 +47,7 @@ class CategoryViewController: UITableViewController {
         do {
             try context.save()
         } catch {
-            print("Error saving context\(error)")
+            print(error)
         }
         
         tableView.reloadData()
@@ -58,7 +58,7 @@ class CategoryViewController: UITableViewController {
         do {
             categoryArray = try context.fetch(request)
         } catch {
-            print("Error fetching data from context \(error)")
+            print(error)
         }
         
         tableView.reloadData()
@@ -104,7 +104,24 @@ class CategoryViewController: UITableViewController {
         
     }
     
+    
     //MARK: - TableView delegate methods
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        self.performSegue(withIdentifier: "goToItems", sender: self)
 
+    }
+  
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "goToItems" {
+            let destinationVC = segue.destination as! ToDoListViewController
+         
+           if let indexPath = tableView.indexPathForSelectedRow {
+               destinationVC.selectedCategory = categoryArray[indexPath.row]
+            }
+        }
+    }
     
 }
