@@ -11,7 +11,7 @@ import CoreData
 class ToDoListViewController: UITableViewController {
     
     var itemArray = [Item]()
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext // Creat in CRUD
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext // Create in CRUD
     
     
     override func viewDidLoad() {
