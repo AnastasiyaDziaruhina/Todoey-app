@@ -21,8 +21,22 @@ class CategoryViewController: SwipeTableViewController {
         super.viewDidLoad()
         loadCategoies()
         tableView.separatorStyle = .none
-    
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        guard let navBar = navigationController?.navigationBar else {
+        fatalError("Navigation controller does not exist")
+        }
+         
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(hexString:"1D9BF6")
+        appearance.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(appearance.backgroundColor!, returnFlat: true)]
+        navBar.standardAppearance = appearance;
+        navBar.scrollEdgeAppearance = navBar.standardAppearance
+            
+        }
     
     //MARK: - TableView Datasource methods
     

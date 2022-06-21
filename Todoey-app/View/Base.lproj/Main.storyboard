@@ -41,13 +41,15 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Items" id="Fry-ng-EDg">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ehx-4S-bsl">
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <action selector="addButtonPressed:" destination="IOZ-L9-VJb" id="MUP-zB-Z5f"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="searchBar" destination="dWq-1r-aU7" id="5ui-df-oAc"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2kf-Re-F7T" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
