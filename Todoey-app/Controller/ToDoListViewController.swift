@@ -8,6 +8,9 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
+import CyaneaOctopus
+import ChameleonFramework
+
 
 class ToDoListViewController: SwipeTableViewController {
     
@@ -24,7 +27,19 @@ class ToDoListViewController: SwipeTableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.separatorStyle = .none
+        
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navbar does not exist")}
+            
+            navBar.backgroundColor = UIColor(hexString: colorHex)
+            
+                }
+            }
     
     //MARK: - TableView DataSource methods
     
@@ -36,6 +51,11 @@ class ToDoListViewController: SwipeTableViewController {
         
         if let item = toDoItems?[indexPath.row] {
             cell.textLabel!.text = item.title
+            
+            if let color = UIColor(hexString: selectedCategory!.color).darken(byPercentage: CGFloat(indexPath.row) / CGFloat(toDoItems!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
             
             //ternary operator==> value = condition ? valueIfTrue : valueIfFalse
             cell.accessoryType = item.done == true ? .checkmark : .none

@@ -8,7 +8,8 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
-
+import CyaneaOctopus
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
     
@@ -19,6 +20,7 @@ class CategoryViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategoies()
+        tableView.separatorStyle = .none
     
     }
     
@@ -31,6 +33,8 @@ class CategoryViewController: SwipeTableViewController {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
+                
+        cell.backgroundColor = HexColor(categories?[indexPath.row].color ?? "6667AB")
         
         return cell
     }
@@ -101,6 +105,7 @@ override func updateModel(at indexPath: IndexPath) {
             }
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.color = UIColor.randomFlat().hexValue()
         
             self.save(category: newCategory)
         }
