@@ -7,8 +7,10 @@
 
 import UIKit
 import RealmSwift
+import SwipeCellKit
 
 class ToDoListViewController: UITableViewController {
+    
     
     let realm = try! Realm()
     
@@ -16,13 +18,16 @@ class ToDoListViewController: UITableViewController {
     
     var selectedCategory: Category? {
         didSet{
-             loadItems()
+            loadItems()
         }
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.rowHeight = 65.0
+
     }
     
     //MARK: - TableView DataSource methods
@@ -31,7 +36,8 @@ class ToDoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath) as! SwipeTableViewCell
+        cell.delegate = self
         
         if let item = toDoItems?[indexPath.row] {
             cell.textLabel!.text = item.title
@@ -60,82 +66,82 @@ class ToDoListViewController: UITableViewController {
         if let item = toDoItems?[indexPath.row] {
             do {
                 try realm.write {
-                  //  realm.delete(item) // D in CRUD
-                   item.done = !item.done
+                    //  realm.delete(item) // D in CRUD
+                    item.done = !item.done
                 }
             } catch {
                 print("Error saving done status \(error)")
             }
             
         }
-            tableView.reloadData()
-            
-            
-            tableView.deselectRow(at: indexPath, animated: true)
-            
+        tableView.reloadData()
+        
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         
     }
+    
+    //MARK: - Add new items
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
-        //MARK: - Add new items
+        var textField = UITextField()
         
-        @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //read textfiled values + safety check
             
-            var textField = UITextField()
+            guard let field = alert.textFields, field.count == 1 else {
+                return
+            }
             
-            let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+            let alertField = field[0]
+            guard let alert = alertField.text, !alert.isEmpty else {
+                print("The string is empty")
+                return
+            }
             
-            let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-                //read textfiled values + safety check
-                
-                guard let field = alert.textFields, field.count == 1 else {
-                    return
-                }
-                
-                let alertField = field[0]
-                guard let alert = alertField.text, !alert.isEmpty else {
-                    print("The string is empty")
-                    return
-                }
-                
-                if let currentCategory = self.selectedCategory {
-                    do {
-                        try self.realm.write {
-                            let newItem = Item()
-                            newItem.title = textField.text!
-                            newItem.dateCreated = Date()
-                            currentCategory.items.append(newItem)
-                        }
-                    } catch {
-                        print(error)
+            if let currentCategory = self.selectedCategory {
+                do {
+                    try self.realm.write {
+                        let newItem = Item()
+                        newItem.title = textField.text!
+                        newItem.dateCreated = Date()
+                        currentCategory.items.append(newItem)
                     }
+                } catch {
+                    print(error)
                 }
-                self.tableView.reloadData()
             }
-            alert.addTextField { (alertTextField) in
-                alertTextField.placeholder = "Create new item"
-                textField = alertTextField
-                
-            }
-            
-            alert.addAction(action)
-            present(alert, animated: true, completion: nil)
+            self.tableView.reloadData()
+        }
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
             
         }
         
-        //MARK: - Model manipulation methods
-        
-        func loadItems() { // R in CRUD
-            
-            toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-            
-            tableView.reloadData()
-        }
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
         
     }
     
-    //MARK: - Search bar methods
+    //MARK: - Model manipulation methods
     
+    func loadItems() { // R in CRUD
+        
+        toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        
+        tableView.reloadData()
+    }
     
+}
+
+//MARK: - Search bar methods
+
+
 extension ToDoListViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -143,7 +149,7 @@ extension ToDoListViewController: UISearchBarDelegate {
         toDoItems = toDoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
         tableView.reloadData()
     }
-        
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0 {
             loadItems()
@@ -155,6 +161,46 @@ extension ToDoListViewController: UISearchBarDelegate {
         }
     }
     
+}
+
+//MARK: - SwipeCell delegate methods
+
+
+extension ToDoListViewController: SwipeTableViewCellDelegate {
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        
+        guard orientation == .right else { return nil }
+        
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            
+            if let itemForDeletion = self.toDoItems?[indexPath.row] {
+                do {
+                    try self.realm.write {
+                        self.realm.delete(itemForDeletion) // D in CRUD
+                    }
+                } catch {
+                    print("Error saving done status \(error)")
+                }
+                
+                tableView.reloadData()
+            }
+            
+        }
+        
+        // customize the action appearance
+        deleteAction.image = UIImage(named: "delete-icon")
+        
+        return [deleteAction]
+    }
+    
+    //    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
+    //
+    //        var options = SwipeOptions()
+    //            options.expansionStyle = .destructive
+    //            options.transitionStyle = .border
+    //            return options
+    //        }
+    //
 }
 
 
